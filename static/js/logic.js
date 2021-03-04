@@ -10,6 +10,38 @@ d3.json(queryUrl, function(data) {
 });
 
 
+// Assign legend colors
+var depths = [-10, 10, 30, 50, 70, 90];
+var color5 = 'rgb(255,0,0)';
+var color4 = 'rgb(255,85,0)';
+var color3 = 'rgb(255,170,0)';
+var color2 = 'rgb(255,255,0)';
+var color1 = 'rgb(127,255,0)';
+var color0 = 'rgb(0,255,0)';
+function depthColor(depth) {
+    return depth > depths[5] ? color5 :
+            depth > depths[4] ? color4 :
+            depth > depths[3] ? color3 :
+            depth > depths[2] ? color2 :
+            depth > depths[1] ? color1 :
+            color0;
+};
+
+// Make legend variable
+var legend = L.control({position: 'bottomright'});
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    // Add legend title
+    div.innerHTML = 'Depth of Earthquake';
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < depths.length; i++) {
+        div.innerHTML +=
+            '<div><i style="background:' + depthColor(depths[i] + 1) + '"></i> ' +
+            depths[i] + (depths[i + 1] ? '&ndash;' + depths[i + 1] + ' km</div><br>': ' km +</div>')
+    }
+    return div;
+};
+
 function createFeatures(earthquakeData) {
 
   // Define a function we want to run once for each feature in the features array
@@ -24,7 +56,6 @@ function createFeatures(earthquakeData) {
   var earthquakes = L.geoJSON(earthquakeData, {
     onEachFeature: onEachFeature,
     pointToLayer: function(feature, latlng) {
-      // var color;
       var r = 255;
       var g =Math.floor(255-75*feature.geometry.coordinates[2]);
       var b =Math.floor(255-75*feature.geometry.coordinates[2]);
@@ -90,7 +121,10 @@ function createMap(earthquakes) {
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
+  legend.addTo(myMap);
 }
+
+
 
 
 
